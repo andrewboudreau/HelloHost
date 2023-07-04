@@ -1,8 +1,7 @@
 # HelloHost: Your Friendly Microservice Hosting Framework
 
-## Philosophy (or Mission)
-
-At the heart of HelloHost, our mission is to make software development accessible, simple, and secure. We believe that anyone, regardless of their technical prowess, should be able to build applications with ease. We focus on making this process intuitive, and we strive to ensure that the tools we provide are understandable by everyone.
+## Philosophy
+Provides a simple to extend basic microservices framework that is easy to extend, compose, and create with ai assistances.
 
 In pursuit of these goals, we abide by the following principles:
 
@@ -16,11 +15,10 @@ In pursuit of these goals, we abide by the following principles:
 
 ## Getting Started
 
-**Note**: We're still in the process of creating a comprehensive 'Getting Started' guide. In the meantime, here are some basic steps to help you get started with HelloHost:
+Basic steps to help you get started with HelloHost:
 
 1. [List basic steps to set up and run a simple HelloHost application]
 
-Stay tuned for a more detailed guide soon!
 
 ## In-Depth: Simplifying Real-World Problems 
 
