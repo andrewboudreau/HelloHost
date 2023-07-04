@@ -1,6 +1,6 @@
 # HelloHost: personal services hosting framework
 ## Mission
-Use composable software components and event-driven design principles to extend and host ai-assisted services. AI is a first class participant in all aspects of the project design, documentation, development, extension, and composablity of the system should all be accessible using natural language models.
+Use composable software components and event-driven design principles to extend and host ai-assisted services. AI is a first class participant in all aspects of the project design, documentation, development, extension, and composability of the system should all be accessible using natural language models.
 
 ## Philosophy
 One of the core principles of HelloHost is the idea that the complexity of the code should not exceed the complexity of the problem it's trying to solve. 
