@@ -1,19 +1,15 @@
 
-using Serilog;
+using Infrastructure;
 
 var builder = WebApplication
 	.CreateBuilder(args)
-    .UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console());
+    .UseLogging();
 
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-app.UseSerilogRequestLogging(); // <-- Add this line
+app.UseLogging();
 app.UseHsts();
 app.UseStaticFiles();
 app.UseRouting();
