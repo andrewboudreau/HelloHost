@@ -13,6 +13,8 @@ In pursuit of these goals, we abide by the following principles:
 
 - **Usability for Everyone**: With a user-friendly interface and clear, straightforward documentation, we make software development a breeze for everyone, even for non-tech-savvy individuals.
 
+- **AI first apis**: Keep in mind who ai can take advantage of these interfaces first.
+
 ## Getting Started
 
 Basic steps to help you get started with HelloHost:
