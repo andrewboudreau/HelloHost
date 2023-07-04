@@ -1,15 +1,14 @@
 
-using Infrastructure;
+using Serilog;
 
-var builder = WebApplication
-	.CreateBuilder(args)
-    .UseLogging();
+var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddSerilog();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-app.UseLogging();
+app.UseSerilogRequestLogging();
 app.UseHsts();
 app.UseStaticFiles();
 app.UseRouting();
