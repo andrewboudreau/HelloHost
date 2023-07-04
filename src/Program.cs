@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddSerilog();
 builder.Services.AddRazorPages();
+builder.Services.AddHostedService<HostServiceBus>(); // Add this line
 
 var app = builder.Build();
 
