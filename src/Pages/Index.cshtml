@@ -1,0 +1,25 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome, tell me to ..</h1>
+    <p>
+        <form method="post">
+            <textarea name="prompt" rows="10" cols="100"></textarea><br />
+            <button type="submit">Submit</button>
+        </form>
+        <div id="response-container">
+            <pre id="response"></pre>
+        </div>
+    </p>
+</div>
+
+@section Scripts {
+	<script>
+        const promptArea = $('textarea[name="prompt"]');
+        promptArea.focus();
+    </script>
+}
