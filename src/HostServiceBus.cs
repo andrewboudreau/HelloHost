@@ -25,11 +25,13 @@ public class HostServiceBus : BackgroundService
             // publish a message
             await sender.SendMessageAsync(new ServiceBusMessage(Encoding.UTF8.GetBytes("Hello, Host!")));
 
-            // consume a message
-            ServiceBusReceivedMessage receivedMessage = await receiver.ReceiveMessageAsync();
-            string messageBody = receivedMessage.Body.ToString();
+            // consume messages
+            await foreach (ServiceBusReceivedMessage receivedMessage in receiver.ReceiveMessagesAsync())
+            {
+                string messageBody = receivedMessage.Body.ToString();
 
-            Console.WriteLine($"Received: {messageBody}");
+                Console.WriteLine($"Received: {messageBody}");
+            }
 
             await Task.Delay(1000, stoppingToken);
         }
