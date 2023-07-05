@@ -1,36 +1,37 @@
-using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Hosting;
+
+using System.Text;
 
 public class HostServiceBus : BackgroundService
 {
-    private const string connectionString = "<your_connection_string>";
-    private const string queueName = "host.all";
+    private readonly ServiceBusClient serviceBusClient;
+    private readonly string queueName;
+
+    public HostServiceBus(ServiceBusClient serviceBusClient)
+    {
+        this.serviceBusClient = serviceBusClient;
+        this.queueName = "host.default";
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using var client = new ServiceBusClient(connectionString);
-
-        // create a publisher
-        ServiceBusSender sender = client.CreateSender(queueName);
+        ServiceBusSender sender = serviceBusClient.CreateSender(queueName);
 
         // create a processor
-        ServiceBusProcessor processor = client.CreateProcessor(queueName, new ServiceBusProcessorOptions());
+        ServiceBusProcessor processor = serviceBusClient.CreateProcessor(queueName);
 
         // register a message handler
         processor.ProcessMessageAsync += MessageHandler;
         processor.ProcessErrorAsync += ErrorHandler;
 
         // start processing
-        await processor.StartProcessingAsync();
+        await processor.StartProcessingAsync(stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             // publish a message
             await sender.SendMessageAsync(new ServiceBusMessage(Encoding.UTF8.GetBytes("Hello, Host!")));
+            await sender.SendMessageAsync(new ServiceBusMessage(Encoding.UTF8.GetBytes("Hello, Error!")));
 
             await Task.Delay(1000, stoppingToken);
         }
@@ -43,6 +44,9 @@ public class HostServiceBus : BackgroundService
     {
         string messageBody = args.Message.Body.ToString();
         Console.WriteLine($"Received: {messageBody}");
+        if (messageBody.Contains("Error"))
+            throw new InvalidOperationException("There was an error");
+
         return Task.CompletedTask;
     }
 

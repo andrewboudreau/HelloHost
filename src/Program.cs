@@ -1,11 +1,14 @@
-
+using HelloHost.Application;
 using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddSerilog();
 builder.Services.AddRazorPages();
-builder.Services.AddHostedService<HostServiceBus>(); // Add this line
+builder.Services.AddOptions<AppSettings>();
+builder.Services.AddHostedService<HostServiceBus>();
+
 
 var app = builder.Build();
 
@@ -15,4 +18,5 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 app.MapRazorPages();
+
 app.Run();
