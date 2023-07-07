@@ -1,5 +1,9 @@
 using Azure.Messaging.ServiceBus;
 
+using HelloHost.Application;
+
+using Microsoft.Extensions.Options;
+
 using System.Text;
 
 public class HostServiceBus : BackgroundService
@@ -7,10 +11,11 @@ public class HostServiceBus : BackgroundService
     private readonly ServiceBusClient serviceBusClient;
     private readonly string queueName;
 
-    public HostServiceBus(ServiceBusClient serviceBusClient)
+    public HostServiceBus(ServiceBusClient serviceBusClient, IOptions<AppSettings> appSettings)
     {
         this.serviceBusClient = serviceBusClient;
-        this.queueName = "host.default";
+        
+        queueName = appSettings.Value.AzureServiceBusQueue;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -44,8 +49,9 @@ public class HostServiceBus : BackgroundService
     {
         string messageBody = args.Message.Body.ToString();
         Console.WriteLine($"Received: {messageBody}");
+
         if (messageBody.Contains("Error"))
-            throw new InvalidOperationException("There was an error");
+            throw new InvalidOperationException("Hello, Error!");
 
         return Task.CompletedTask;
     }
