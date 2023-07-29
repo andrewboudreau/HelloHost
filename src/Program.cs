@@ -8,5 +8,11 @@ var app = builder.Build();
 
 app.Map("/", () => Results.Ok("Hello, World!"));
 
+app.Consume<MyMessage>(message => 
+{
+    // Your handler code here
+    return Task.CompletedTask;
+});
+
 await app.RunAsyncWithShutdown();
 
