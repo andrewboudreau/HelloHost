@@ -16,7 +16,7 @@ public static class SerilogExtensions
         });
 
         // code to register 
-        //app.UseSerilogRequestLogging();
+        builder.Host.UseSerilogRequestLogging();
 
         return builder;
     }
