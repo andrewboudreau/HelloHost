@@ -1,4 +1,5 @@
 using HelloHost.Application;
+using Extensions;
 
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -13,15 +14,7 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 // Use Serilog
-builder.Host.UseSerilog((host, sp, logConfig) =>
-{
-    var appConfig = sp.GetRequiredService<IConfiguration>();
-
-    logConfig
-        .ReadFrom.Configuration(appConfig)
-        .WriteTo.File("logs.txt")
-        .WriteTo.Console(theme: AnsiConsoleTheme.Code);
-});
+builder.Host.UseSerilog();
 
 
 builder.Services.AddOptions<AppSettings>();
