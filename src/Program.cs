@@ -1,8 +1,6 @@
 using HelloHost.Application;
-using Extensions;
 
 using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
 
 var cancellationSource = new CancellationTokenSource();
 var stoppingToken = cancellationSource.Token;
@@ -13,9 +11,7 @@ builder.Configuration
     .AddJsonFile("appsettings.secret.json", true, true)
     .AddEnvironmentVariables();
 
-// Use Serilog
-builder.Host.UseSerilog();
-
+builder.UseSerilog();
 
 builder.Services.AddOptions<AppSettings>();
 builder.Services.AddAuthentication();

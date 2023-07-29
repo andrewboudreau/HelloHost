@@ -15,6 +15,9 @@ public static class SerilogExtensions
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code);
         });
 
+        // code to register 
+        //app.UseSerilogRequestLogging();
+
         return builder;
     }
 }
