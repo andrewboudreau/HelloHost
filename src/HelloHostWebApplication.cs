@@ -1,11 +1,19 @@
 using HelloHost.Application;
 
-public class HelloHostWebApplication
+public sealed class HelloHostWebApplication
 {
-    public static CancellationTokenSource CancellationSource { get; } = new CancellationTokenSource();
+    public WebApplication WebApplication { get; private set; }
+
+    public HelloHostWebApplication(WebApplication webApplication)
+    {
+        WebApplication = webApplication;
+    }
+
+    internal static CancellationTokenSource CancellationSource { get; } = new CancellationTokenSource();
+
     public static CancellationToken StoppingToken => CancellationSource.Token;
 
-    public static WebApplicationBuilder CreateBuilder(string[] args)
+    public static HelloHostWebApplicationBuilder CreateBuilder(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +27,38 @@ public class HelloHostWebApplication
         builder.Services.AddAuthentication();
         builder.Services.AddAuthorization();
 
-        return builder;
+        return new HelloHostWebApplicationBuilder(builder);
+    }
+}
+
+public sealed class HelloHostWebApplicationBuilder : IHostApplicationBuilder
+{
+    private readonly WebApplicationBuilder webApplicationBuilder;
+
+    public HelloHostWebApplicationBuilder(WebApplicationBuilder webApplicationBuilder)
+    {
+        this.webApplicationBuilder = webApplicationBuilder;
+    }
+
+    public HelloHostWebApplication Build()
+    {
+        return new HelloHostWebApplication(webApplicationBuilder.Build());
+    }
+
+    public WebApplicationBuilder WebApplicationBuilder => webApplicationBuilder;
+
+    public IConfigurationManager Configuration => webApplicationBuilder.Configuration;
+
+    public IHostEnvironment Environment => webApplicationBuilder.Environment;
+
+    public ILoggingBuilder Logging => webApplicationBuilder.Logging;
+
+    public IDictionary<object, object> Properties => ((IHostApplicationBuilder)webApplicationBuilder).Properties;
+
+    public IServiceCollection Services => webApplicationBuilder.Services;
+
+    public void ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure = null) where TContainerBuilder : notnull
+    {
+        ((IHostApplicationBuilder)webApplicationBuilder).ConfigureContainer(factory, configure);
     }
 }

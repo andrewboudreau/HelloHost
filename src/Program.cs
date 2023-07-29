@@ -1,12 +1,9 @@
-using HelloHost.Application;
-
 using Serilog;
 
 var builder = HelloHostWebApplication.CreateBuilder(args);
 
-var stoppingToken = HelloHostWebApplication.StoppingToken;
-
 var app = builder.Build();
+
 app.UseSerilogRequestLogging();
 
 app.UseHsts();
@@ -14,11 +11,12 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.Map("/", () => Results.Ok("Hello, World!"));
 
 try
 {
-    await app.RunAsync(stoppingToken);
+    await app.RunAsync(HelloHostWebApplication.StoppingToken);
 }
 catch (TaskCanceledException)
 {
@@ -30,7 +28,5 @@ catch (Exception ex)
 }
 finally
 {
-    await app.DisposeAsync();
-    Log.Information("App Disposed.");
     Log.CloseAndFlush();
 }
