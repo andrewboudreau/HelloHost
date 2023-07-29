@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Builder;
-using Serilog;
+using HelloHost.Application;
 
-public class HelloHostWebApplication : WebApplication
+public class HelloHostWebApplication
 {
-    public static IWebHostBuilder CreateBuilder(string[] args)
+    public static WebApplicationBuilder CreateBuilder(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
