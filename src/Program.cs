@@ -20,11 +20,6 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 app.Map("/", () => Results.Ok("Hello, World!"));
 
-app.UseSerilogRequestLogging(options =>
-{
-    options.EnrichDiagnosticContext = LogHelper.EnrichFromRequest;
-    options.GetLevel = LogHelper.CustomGetLevel;
-});
 app.UseHsts();
 app.UseStaticFiles();
 app.UseRouting();
