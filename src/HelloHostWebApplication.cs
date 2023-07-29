@@ -2,14 +2,14 @@ using HelloHost.Application;
 
 public sealed class HelloHostWebApplication
 {
-    public WebApplication WebApplication { get; private set; }
-
+    internal static CancellationTokenSource CancellationSource { get; } = new CancellationTokenSource();
+    
     public HelloHostWebApplication(WebApplication webApplication)
     {
         WebApplication = webApplication;
     }
 
-    internal static CancellationTokenSource CancellationSource { get; } = new CancellationTokenSource();
+    public WebApplication WebApplication { get; private set; }
 
     public static CancellationToken StoppingToken => CancellationSource.Token;
 
