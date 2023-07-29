@@ -18,13 +18,14 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-app.Map("/", () => Results.Ok("Hello, World!"));
+app.UseSerilogRequestLogging();
 
 app.UseHsts();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.Map("/", () => Results.Ok("Hello, World!"));
 
 try
 {
