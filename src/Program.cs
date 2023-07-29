@@ -5,17 +5,7 @@ using Serilog;
 var cancellationSource = new CancellationTokenSource();
 var stoppingToken = cancellationSource.Token;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration
-    .AddJsonFile("appsettings.secret.json", true, true)
-    .AddEnvironmentVariables();
-
-builder.UseSerilog();
-
-builder.Services.AddOptions<AppSettings>();
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+var builder = HelloHostWebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 app.UseSerilogRequestLogging();
