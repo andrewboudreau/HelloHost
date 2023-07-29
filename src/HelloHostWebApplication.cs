@@ -61,4 +61,9 @@ public sealed class HelloHostWebApplicationBuilder : IHostApplicationBuilder
     {
         ((IHostApplicationBuilder)webApplicationBuilder).ConfigureContainer(factory, configure);
     }
+
+    public static implicit operator WebApplication(HelloHostWebApplicationBuilder builder)
+    {
+        return builder.webApplicationBuilder.Build();
+    }
 }
