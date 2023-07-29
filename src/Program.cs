@@ -2,10 +2,9 @@ using HelloHost.Application;
 
 using Serilog;
 
-var cancellationSource = new CancellationTokenSource();
-var stoppingToken = cancellationSource.Token;
-
 var builder = HelloHostWebApplication.CreateBuilder(args);
+
+var stoppingToken = HelloHostWebApplication.StoppingToken;
 
 var app = builder.Build();
 app.UseSerilogRequestLogging();
