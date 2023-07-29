@@ -1,54 +1,58 @@
 using HelloHost.Application;
 
-using Microsoft.Extensions.Azure;
-
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
-namespace HelloHost;
+var cancellationSource = new CancellationTokenSource();
+var stoppingToken = cancellationSource.Token;
 
-public class Program
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.secret.json", true, true)
+    .AddEnvironmentVariables();
+
+// Use Serilog
+builder.Host.UseSerilog((host, sp, logConfig) =>
 {
-    public static async Task Main(string[] args)
-    {
-        var cancellationSource = new CancellationTokenSource();
-        var stoppingToken = cancellationSource.Token;
+    var appConfig = sp.GetRequiredService<IConfiguration>();
 
-        var builder = WebApplication.CreateBuilder(args);
-
-        builder.Configuration
-            .AddJsonFile("appsettings.secret.json", true, true)
-            .AddEnvironmentVariables();
-
-        builder.Logging.AddSerilog();
-        builder.Services.AddRazorPages();
-        builder.Services.AddOptions<AppSettings>();
-        builder.Services.AddHostedService<HostServiceBus>();
+    logConfig
+        .ReadFrom.Configuration(appConfig)
+        .WriteTo.File("logs.txt")
+        .WriteTo.Console(theme: AnsiConsoleTheme.Code);
+});
 
 
-        var app = builder.Build();
+builder.Services.AddOptions<AppSettings>();
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
-        app.UseSerilogRequestLogging();
-        app.UseHsts();
-        app.UseStaticFiles();
-        app.UseRouting();
-        app.UseAuthorization();
-        app.MapRazorPages();
+var app = builder.Build();
+app.Map("/", () => Results.Ok("Hello, World!"));
 
-        try
-        {
-            await app.RunAsync(stoppingToken);
-        }
-        catch (TaskCanceledException)
-        {
-            Log.Warning("Host has been cancelled, shutting down.");
-        }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "Host terminated unexpectedly");
-        }
-        finally
-        {
-            Log.CloseAndFlush();
-        }
-    }
+app.UseSerilogRequestLogging();
+app.UseHsts();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+try
+{
+    await app.RunAsync(stoppingToken);
+}
+catch (TaskCanceledException)
+{
+    Log.Information("Host has been cancelled, shutting down.");
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    await app.DisposeAsync();
+    Log.Information("App Disposed.");
+    Log.CloseAndFlush();
 }
