@@ -1,8 +1,30 @@
 // IMessageHandler.cs
-public interface IMessageHandler<in T>
+
+public interface IConsumer<TMessage>
 {
-    Task Handle(T message);
-    Task HandleError(T message, Exception ex);
+    Task Handle(ConsumerContext<TMessage> message);
+
+    Task HandleError(ConsumerContext<TMessage> message, Exception ex);
+}
+
+public class ConsumerContext<TMessage>
+{
+    public ConsumerContext(string user, BinaryData messageData)
+    {
+        User = user;
+        MessageData = messageData;
+        typedMessage ??= MessageData.ToObjectFromJson<TMessage>()
+            ?? throw new InvalidCastException($"There was an error casting MessageData to {typeof(TMessage)}. Value: '{messageData}'.");
+    }
+
+    private TMessage typedMessage;
+
+    public string User { get; }
+
+    public BinaryData MessageData { get; }
+
+    public TMessage Message =>
+        typedMessage ??= MessageData.ToObjectFromJson<TMessage>();
 }
 
 // BackgroundConsumer.cs 
