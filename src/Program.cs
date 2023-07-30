@@ -30,8 +30,27 @@ public static class WebApplicationExtensions
 {
     public static void MapServiceBus<TMessage>(this WebApplication app, string queueName, Action<TMessage, IServiceProvider> handler)
     {
-        var consumer = app.Services.GetService<BackgroundConsumer>();
-        consumer.RegisterHandler<TMessage>((sp, message) => handler(message, sp));
+        var serviceBusConnectionString = "";  // You should fetch this from a secure place
+        var client = new ServiceBusClient(serviceBusConnectionString);
+        var processor = client.CreateProcessor(queueName, new ServiceBusProcessorOptions());
+
+        processor.ProcessMessageAsync += async args =>
+        {
+            using var scope = app.Services.CreateScope();
+            var message = args.Message.Body.ToObjectFromJson<TMessage>();
+            handler(message, scope.ServiceProvider);
+        };
+
+        processor.ProcessErrorAsync += ExceptionReceivedHandler;
+
+        // Start the processor
+        processor.StartProcessingAsync();
+    }
+
+    static Task ExceptionReceivedHandler(ProcessErrorEventArgs args)
+    {
+        // Handle any exceptions that occur during message reception
+        return Task.CompletedTask;
     }
 
     public static void MapRabbitMq<TMessage>(this WebApplication app, string queueName, Action<TMessage, IServiceProvider> handler)
