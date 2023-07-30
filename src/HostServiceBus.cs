@@ -25,7 +25,16 @@ public class HostServiceBus : BackgroundService
         this.handler = handler;
         this.errorHandler = errorHandler;
     }
-
+/// <summary>
+/// Represents a host for the Service Bus.
+/// </summary>
+public class HostServiceBus : BackgroundService
+{
+    /// <summary>
+    /// Executes the host asynchronously.
+    /// </summary>
+    /// <param name="stoppingToken">A cancellation token that can be used to cancel the work.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // register a message handler
@@ -43,7 +52,7 @@ public class HostServiceBus : BackgroundService
             await processor.StopProcessingAsync(CancellationToken.None);
         }
     }
-
+}
     async Task MessageHandler(ProcessMessageEventArgs args)
     {
         string messageBody = args.Message.Body.ToString();
