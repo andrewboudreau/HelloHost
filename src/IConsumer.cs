@@ -42,7 +42,7 @@ public class BackgroundConsumer : BackgroundService
         return Task.CompletedTask;
     }
 
-    public void RegisterHandler<T>(Action<IServiceProvider, T> handler, Func<T, Exception, Task> errorHandler = null)
+    public void RegisterHandler<TMessage>(Action<IServiceProvider, TMessage> handler, Func<TMessage, Exception, Task> errorHandler = null)
     {
         // register handler and error handler in DI
     }

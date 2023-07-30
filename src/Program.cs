@@ -31,7 +31,7 @@ public static class WebApplicationExtensions
     public static void MapServiceBus<TMessage>(this WebApplication app, string queueName, Action<TMessage, IServiceProvider> handler)
     {
         var consumer = app.Services.GetService<BackgroundConsumer>();
-        //consumer.RegisterHandler(queueName, handler);
+        consumer.RegisterHandler<TMessage>((sp, message) => handler(message, sp));
     }
 
     public static void MapRabbitMq<TMessage>(this WebApplication app, string queueName, Action<TMessage, IServiceProvider> handler)
