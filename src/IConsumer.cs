@@ -1,5 +1,7 @@
 // IMessageHandler.cs
 
+using Azure.Messaging.ServiceBus;
+
 public interface IConsumer<TMessage>
 {
     Task Handle(ConsumerContext<TMessage> message);
@@ -30,11 +32,11 @@ public class ConsumerContext<TMessage>
 // BackgroundConsumer.cs 
 public class BackgroundConsumer : BackgroundService
 {
-    private IServiceProvider provider;
+    private readonly IServiceProvider serviceProvider;
 
-    public BackgroundConsumer(IServiceProvider provider)
+    public BackgroundConsumer(IServiceProvider serviceProvider)
     {
-        this.provider = provider;
+        this.serviceProvider = serviceProvider;
     }
 
     protected override Task ExecuteAsync(CancellationToken cancel)

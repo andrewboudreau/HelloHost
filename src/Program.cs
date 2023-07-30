@@ -1,5 +1,8 @@
 using Azure.Messaging.ServiceBus;
+
 using HelloHost;
+
+using Microsoft.Extensions.Options;
 
 var builder = HelloHostWebApplication.CreateBuilder(args);
 var app = builder.Build();
@@ -21,7 +24,6 @@ app.MapStorageQueue<MyMessage>("hellohost-mymessage", (myMessage, sp) =>
     Console.WriteLine($"Received message from StorageQueue: {myMessage.Id} at {myMessage.Date}");
 });
 
-
 await app.RunAsyncWithShutdown();
 
 public record MyMessage(DateTime Date, Guid Id);
@@ -30,6 +32,7 @@ public static class WebApplicationExtensions
 {
     public static void MapServiceBus<TMessage>(this WebApplication app, string queueName, Action<TMessage, IServiceProvider> handler)
     {
+        app.Services.GetRequiredService<IOptions<ServiceBusOptions>>
         var serviceBusConnectionString = "";  // You should fetch this from a secure place
         var client = new ServiceBusClient(serviceBusConnectionString);
         var processor = client.CreateProcessor(queueName, new ServiceBusProcessorOptions());
@@ -92,10 +95,35 @@ public static class WebApplicationExtensions
 
         return app;
     }
+}
 
-    static Task ExceptionReceivedHandler(ProcessErrorEventArgs args)
+public class ServiceBusOptions
+{
+    public ServiceBusOptions()
     {
-        // Handle any exceptions that occur during message reception
-        return Task.CompletedTask;
+        ConnectionString = string.Empty;
+    }
+
+    public string ConnectionString { get; set; }
+
+    public bool UseManagedIdentity { get; set; } = false;
+
+    public int MaxConcurrentCalls { get; set; } = 1;
+
+    public int PrefetchCount { get; set; } = 16;
+
+    public class ServiceBusOptionsValidator : IValidateOptions<ServiceBusOptions>
+    {
+        public ValidateOptionsResult Validate(string? name, ServiceBusOptions options)
+        {
+            ArgumentNullException.ThrowIfNull(options);
+
+            if (string.IsNullOrWhiteSpace(options.ConnectionString) && !options.UseManagedIdentity)
+            {
+                return ValidateOptionsResult.Fail($"{nameof(options.ConnectionString)} must be specified if {nameof(options.UseManagedIdentity)} is false.");
+            }
+
+            return ValidateOptionsResult.Success;
+        }
     }
 }

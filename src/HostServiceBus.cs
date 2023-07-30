@@ -1,62 +1,63 @@
 using Azure.Messaging.ServiceBus;
 
-using HelloHost.Application;
-
-using Microsoft.Extensions.Options;
-
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 public class HostServiceBus : BackgroundService
 {
-    private readonly ServiceBusClient serviceBusClient;
-    private readonly string queueName;
+    //private readonly ServiceBusClient serviceBusClient;
+    private readonly ServiceBusProcessor processor;
+    private readonly IServiceScopeFactory scopeFactory;
+    private readonly Func<object, Task> handler;
+    private readonly Func<object, Task> errorHandler;
 
-    public HostServiceBus(ServiceBusClient serviceBusClient, IOptions<AppSettings> appSettings)
+    //private readonly string queueName;
+
+    public HostServiceBus(
+        ServiceBusProcessor processor,
+        IServiceScopeFactory scopeFactory,
+        Func<object, Task> handler,
+        Func<object, Task> errorHandler)
     {
-        this.serviceBusClient = serviceBusClient;
-        
-        queueName = appSettings.Value.AzureServiceBusQueue;
+        this.processor = processor;
+        this.scopeFactory = scopeFactory;
+        this.handler = handler;
+        this.errorHandler = errorHandler;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        ServiceBusSender sender = serviceBusClient.CreateSender(queueName);
-
-        // create a processor
-        ServiceBusProcessor processor = serviceBusClient.CreateProcessor(queueName);
-
         // register a message handler
         processor.ProcessMessageAsync += MessageHandler;
         processor.ProcessErrorAsync += ErrorHandler;
 
-        // start processing
         await processor.StartProcessingAsync(stoppingToken);
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            // publish a message
-            await sender.SendMessageAsync(new ServiceBusMessage(Encoding.UTF8.GetBytes("Hello, Host!")));
-            await sender.SendMessageAsync(new ServiceBusMessage(Encoding.UTF8.GetBytes("Hello, Error!")));
-
-            await Task.Delay(1000, stoppingToken);
+            await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
         }
-
-        // stop processing
-        await processor.StopProcessingAsync();
+        catch (TaskCanceledException)
+        {
+            await processor.StopProcessingAsync(CancellationToken.None);
+        }
     }
 
-    static Task MessageHandler(ProcessMessageEventArgs args)
+    async Task MessageHandler(ProcessMessageEventArgs args)
     {
         string messageBody = args.Message.Body.ToString();
         Console.WriteLine($"Received: {messageBody}");
 
         if (messageBody.Contains("Error"))
+        {
             throw new InvalidOperationException("Hello, Error!");
+        }
 
-        return Task.CompletedTask;
+        await handler(args.Message);
     }
 
-    static Task ErrorHandler(ProcessErrorEventArgs args)
+    Task ErrorHandler(ProcessErrorEventArgs args)
     {
         Console.WriteLine($"Message handler encountered an exception {args.Exception}.");
         return Task.CompletedTask;
