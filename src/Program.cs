@@ -32,7 +32,7 @@ public static class WebApplicationExtensions
 {
     public static void MapServiceBus<TMessage>(this WebApplication app, string queueName, Action<TMessage, IServiceProvider> handler)
     {
-        app.Services.GetRequiredService<IOptions<ServiceBusOptions>>
+        //app.Services.GetRequiredService<IOptions<ServiceBusOptions>>
         var serviceBusConnectionString = "";  // You should fetch this from a secure place
         var client = new ServiceBusClient(serviceBusConnectionString);
         var processor = client.CreateProcessor(queueName, new ServiceBusProcessorOptions());
